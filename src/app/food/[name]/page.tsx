@@ -1,51 +1,54 @@
 'use client'
 
-import Image from 'next/image'
-import {useState, useEffect} from "react";
-import {IFood, IMacronutrientData} from "@/types";
-import {useRouter} from "next/navigation";
-import {Undo2} from "lucide-react";
+// Import necessary components and hooks
+import Image from 'next/image' // For displaying images
+import { useState, useEffect } from "react"; // React hooks for state and lifecycle management
+import { IFood, IMacronutrientData } from "@/types"; // Import interfaces for food and macronutrient data
+import { useRouter } from "next/navigation"; // Next.js router hook for navigation
+import { Undo2 } from "lucide-react"; // Import undo icon from lucide-react
 
-import React, {PureComponent} from 'react';
-import {PieChart, Pie, Sector, Cell, ResponsiveContainer} from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'; // Recharts components for pie chart
 
 
-const FoodPage = ({params}: { params: { name: string } }) => {
-    const router = useRouter();
-    const [food, setFood] = useState<IFood | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(true)
-    const [macronutrients, setMacronutrients] = useState<IMacronutrientData[]>([])
-    const COLORS = ['#F28907', '#5079F2', '#F2220F'];
+// FoodPage component
+const FoodPage = ({ params }: { params: { name: string } }) => {
+    const router = useRouter(); // Initialize router
+    const [food, setFood] = useState<IFood | null>(null); // State for food data
+    const [isLoading, setIsLoading] = useState<boolean>(true); // State for loading indicator
+    const [macronutrients, setMacronutrients] = useState<IMacronutrientData[]>([]); // State for macronutrient data
+    const COLORS = ['#F28907', '#5079F2', '#F2220F']; // Colors for pie chart segments
 
+    // Function to fetch food data from the API
     const fetchFood = async () => {
         try {
-            const APIQueryURL = `/api/foods/${params.name}`;
-            const response = await fetch(APIQueryURL);
-            const data = await response.json();
+            const APIQueryURL = `/api/foods/${params.name}`; // API endpoint
+            const response = await fetch(APIQueryURL); // Fetch data from API
+            const data = await response.json(); // Parse JSON response
 
-            // Macronutrients
+            // Prepare macronutrient data
             const macronutrientsData: IMacronutrientData[] = [
-                {name: 'carbohydrates', value: data.carbohydrates},
-                {name: 'protein', value: data.protein},
-                {name: 'fat', value: data.fat}
+                { name: 'carbohydrates', value: data.carbohydrates },
+                { name: 'protein', value: data.protein },
+                { name: 'fat', value: data.fat }
             ];
-            setMacronutrients(macronutrientsData);
+            setMacronutrients(macronutrientsData); // Update state with macronutrient data
 
-            // Food general
-            setFood(data)
+            // Set food data
+            setFood(data);
         } catch (error) {
-            console.log(error)
+            console.log(error); // Log any errors
         } finally {
-            setIsLoading(false)
+            setIsLoading(false); // Set loading state to false
         }
-    }
+    };
 
+    // Effect to fetch food data on component mount
     useEffect(() => {
         const initialize = async () => {
-            await fetchFood();
-        }
-        initialize();
-    }, [params.name]);
+            await fetchFood(); // Fetch food data
+        };
+        initialize(); // Call initialization function
+    }, [params.name]); // Re-run effect if params.name changes
 
     return (
         <>
@@ -82,10 +85,14 @@ const FoodPage = ({params}: { params: { name: string } }) => {
                         <div className={'w-full md:w-1/2 lg:w-2/3'}>
                             <div className={'text-lg font-semibold mb-4'}>Nutritional Information per 100 grams:</div>
                             <div className={'mb-4 p-4 text-white bg-gray-800 rounded-lg shadow-inner'}>
+                                <div className={'mb-2'}>Calories: <span
+                                    className={'font-medium'}>{food.calories} cal</span>
+                                </div>
                                 <div className={'flex items-center mb-2'}>
                                     <div className={'w-5 h-5 bg-[#F28907] border border-gray-700 mr-3'}></div>
                                     <div>Carbohydrates: <span
-                                        className={'font-medium'}>{food.carbohydrates} g</span></div>
+                                        className={'font-medium'}>{food.carbohydrates} g</span>
+                                    </div>
                                 </div>
                                 <div className={'flex items-center mb-2'}>
                                     <div className={'w-5 h-5 bg-[#5079F2] border border-gray-700 mr-3'}></div>
@@ -100,7 +107,7 @@ const FoodPage = ({params}: { params: { name: string } }) => {
                             </div>
                             <div className={'mt-4'}>
                                 <div className={'flex items-center mb-2'}>
-                                    <Image src={'/vitamins.png'} width={30} height={30} alt={'vitamins'}/>
+                                <Image src={'/vitamins.png'} width={30} height={30} alt={'vitamins'}/>
                                     <div className={'ml-3'}>
                                         <span className={'font-semibold'}> Vitamins: </span>
                                         {food.vitamins?.join(', ')}
